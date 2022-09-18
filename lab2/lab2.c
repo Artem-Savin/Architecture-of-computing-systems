@@ -132,37 +132,31 @@ void output_result(
     }
     rel_error = (abs_error / avg_time) * 100;
 
-    // FILE *pipe_fp = popen("cat" , "w");
-    // char* str;
-    // size_t size = 100000;
     char* str2 = (char*)malloc(256);
     FILE* cpu_inf = fopen("/proc/cpuinfo", "r");
     fgets(str2, 255, cpu_inf);
-    /* char* istr = strstr(str2,"model name");
-    printf("%s\n", istr); */
 
     for (int i = 0; i < 4; i++) {
         str2 = readln(cpu_inf);
         if (i == 3) {
             str2 = str2 + 13;
         }
-        /* printf("%s\n", str2);} */
     }
 
     // fprintf (out, "PModel - %s\n", pipe_fp);
     /* for(int i = 0; i < 5 ; i++){ */
-    fprintf(out, "PModel - %s\n", str2);
-    fprintf(out, "Task - multiplication of a matrix by a vector\n");
-    fprintf(out, "OpType - %s\n", optype);
-    fprintf(out, "Opt - O\n");
-    fprintf(out, "InsCount - %d\n", insCount);
-    fprintf(out, "Timer - gettimeofday\n");
-    fprintf(out, "Time - %lf\n", i_time);
-    fprintf(out, "LNum - %d\n", test_cnt);
-    fprintf(out, "AvTime - %lf\n", avg_time);
-    fprintf(out, "AbsError - %lf\n", abs_error);
-    fprintf(out, "RelError - %lf %c\n", rel_error, 37);
-    fprintf(out, "TaskPerf - %lf\n\n", performance);
+    fprintf(out, "%s;", str2);
+    fprintf(out, "multiplication of a matrix by a vector;");
+    fprintf(out, "%s;", optype);
+    fprintf(out, "O;");
+    fprintf(out, "%d;", insCount);
+    fprintf(out, "gettimeofday;");
+    fprintf(out, "%lf;", i_time);
+    fprintf(out, "%d;", test_cnt);
+    fprintf(out, "%lf;", avg_time);
+    fprintf(out, "%lf;", abs_error);
+    fprintf(out, "%lf %c;", rel_error, 37);
+    fprintf(out, "%lf;\n", performance);
 }
 
 int main()
@@ -173,7 +167,7 @@ int main()
     int n, m, min, max, test_cnt;
     min = 0;
     max = 64;
-    n = m = 5000;
+    n = m = 4000;
     double *a, *b, *c, first_time, second_time, res_time, min_time, max_time,
             cur_time;
     a = (double*)malloc(sizeof(*a) * m * n);
@@ -191,7 +185,7 @@ int main()
         max_time = 0;
         if (i == 0) {
             res_time = 0;
-            for (int j = 0; j < test_cnt; j++) {
+            for (int j = 1; j <= test_cnt; j++) {
                 init_matrix_d(a, b, m, n, min, max);
                 first_time = wtime();
                 matrix_vector_product_double(a, b, c, m, n);
@@ -202,20 +196,13 @@ int main()
                     max_time = cur_time;
                 if (cur_time < min_time)
                     min_time = cur_time;
+                output_result(
+                        out, "double", res_time, j, m, n, max_time, min_time);
             }
-            output_result(
-                    out,
-                    "double",
-                    res_time,
-                    test_cnt,
-                    m,
-                    n,
-                    max_time,
-                    min_time);
         }
         if (i == 1) {
             res_time = 0;
-            for (int j = 0; j < test_cnt; j++) {
+            for (int j = 1; j <= test_cnt; j++) {
                 init_matrix_f((float*)a, (float*)b, m, n, min, max);
                 first_time = wtime();
                 matrix_vector_product_float(
@@ -227,13 +214,13 @@ int main()
                     max_time = cur_time;
                 if (cur_time < min_time)
                     min_time = cur_time;
+                output_result(
+                        out, "float", res_time, j, m, n, max_time, min_time);
             }
-            output_result(
-                    out, "float", res_time, test_cnt, m, n, max_time, min_time);
         }
         if (i == 2) {
             res_time = 0;
-            for (int j = 0; j < test_cnt; j++) {
+            for (int j = 1; j <= test_cnt; j++) {
                 init_matrix_i((int*)a, (int*)b, m, n, min, max);
                 first_time = wtime();
                 matrix_vector_product_int((int*)a, (int*)b, (int*)c, m, n);
@@ -244,16 +231,9 @@ int main()
                     max_time = cur_time;
                 if (cur_time < min_time)
                     min_time = cur_time;
+                output_result(
+                        out, "integer", res_time, j, m, n, max_time, min_time);
             }
-            output_result(
-                    out,
-                    "integer",
-                    res_time,
-                    test_cnt,
-                    m,
-                    n,
-                    max_time,
-                    min_time);
         }
 
         printf("%f\n", res_time);
